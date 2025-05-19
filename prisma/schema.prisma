@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Factory {
+  id          Int       @id @default(autoincrement())
+  name        String    @db.VarChar(100)
+  lower_bound Int
+  upper_bound Int
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  children    Child[]
+}
+
+model Child {
+  id         Int      @id @default(autoincrement())
+  value      Int
+  created_at DateTime @default(now())
+  factory    Factory  @relation(fields: [factoryId], references: [id], onDelete: Cascade)
+  factoryId  Int
+}
