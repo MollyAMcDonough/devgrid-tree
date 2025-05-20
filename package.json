@@ -1,6 +1,8 @@
 {
   "name": "devgrid-tree",
   "version": "0.1.0",
+  "type": "module",
+  "description": "A Next.js application with Prisma and Tailwind CSS",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
@@ -8,6 +10,9 @@
     "start": "next start",
     "lint": "next lint",
     "format": "prettier --write ."
+  },
+  "prisma": {
+    "seed": "tsx ./prisma/seed.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.8.2",
@@ -24,6 +29,7 @@
     "@types/react-dom": "^19",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9.27.0",
     "eslint-config-next": "15.3.2",
     "eslint-config-prettier": "^10.1.5",
@@ -33,6 +39,8 @@
     "prettier": "^3.5.3",
     "prisma": "^6.8.2",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
     "typescript": "^5"
   }
 }
