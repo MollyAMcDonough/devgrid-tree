@@ -12,6 +12,7 @@ model Factory {
   name        String    @db.VarChar(100)
   lower_bound Int
   upper_bound Int
+  children_count Int
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
   children    Child[]

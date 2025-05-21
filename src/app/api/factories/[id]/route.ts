@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+function isInt(n: unknown) {
+  return typeof n === 'number' && Number.isInteger(n);
+}
+
 // GET /api/factories/[id] - Get single factory (with children)
 export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
   const id = Number(params.id);
@@ -23,18 +27,22 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   const updates: Partial<{ name: string; lower_bound: number; upper_bound: number }> = {};
   let regenerate = false;
 
-  if (typeof name === 'string' && name.length >= 1 && name.length <= 100) {
-    updates.name = name;
+  // Validate and update name
+  if (typeof name === 'string') {
+    const trimmed = name.trim();
+    if (trimmed.length < 1 || trimmed.length > 100) {
+      return NextResponse.json({ error: 'Name must be 1-100 characters.' }, { status: 400 });
+    }
+    updates.name = trimmed;
   }
-  if (
+
+  // Validate and update bounds
+  const boundsChanged =
     (typeof lower_bound === 'number' && lower_bound !== factory.lower_bound) ||
-    (typeof upper_bound === 'number' && upper_bound !== factory.upper_bound)
-  ) {
-    if (
-      typeof lower_bound !== 'number' ||
-      typeof upper_bound !== 'number' ||
-      lower_bound > upper_bound
-    ) {
+    (typeof upper_bound === 'number' && upper_bound !== factory.upper_bound);
+
+  if (boundsChanged) {
+    if (!isInt(lower_bound) || !isInt(upper_bound) || lower_bound > upper_bound) {
       return NextResponse.json({ error: 'Invalid bounds.' }, { status: 400 });
     }
     updates.lower_bound = lower_bound;
@@ -42,15 +50,19 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     regenerate = true;
   }
 
+  // If nothing to update, return current factory
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json(factory);
+  }
+
   const updatedFactory = await prisma.factory.update({
     where: { id },
     data: updates,
   });
 
-  // If bounds changed, delete and regenerate children
+  // If bounds changed, delete all children (UI or client should trigger regeneration)
   if (regenerate) {
     await prisma.child.deleteMany({ where: { factoryId: id } });
-    // You may want to trigger a new POST to /generate here or let UI handle it
   }
 
   return NextResponse.json(updatedFactory);
