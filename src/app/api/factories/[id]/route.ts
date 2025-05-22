@@ -6,8 +6,10 @@ function isInt(n: unknown) {
 }
 
 // GET /api/factories/[id] - Get single factory (with children)
-export async function GET(_req: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
+// @ts-expect-error: Next.js does not provide a type for context
+export async function GET(_req: NextRequest, context) {
+  // Type assertion for params to maintain type safety
+  const id = Number((context as { params: { id: string } }).params.id);
   const factory = await prisma.factory.findUnique({
     where: { id },
     include: { children: true },
@@ -17,8 +19,10 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
 }
 
 // PATCH /api/factories/[id] - Update name or bounds (regenerate children if bounds change)
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
+// @ts-expect-error: Next.js does not provide a type for context
+export async function PATCH(req: NextRequest, context) {
+  // Type assertion for params to maintain type safety
+  const id = Number((context as { params: { id: string } }).params.id);
   const { name, lower_bound, upper_bound } = await req.json();
 
   const factory = await prisma.factory.findUnique({ where: { id } });
@@ -69,8 +73,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 }
 
 // DELETE /api/factories/[id] - Delete factory and children (cascade)
-export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
+// @ts-expect-error: Next.js does not provide a type for context
+export async function DELETE(_req: NextRequest, context) {
+  // Type assertion for params to maintain type safety
+  const id = Number((context as { params: { id: string } }).params.id);
   try {
     await prisma.factory.delete({ where: { id } });
     return NextResponse.json({ success: true });

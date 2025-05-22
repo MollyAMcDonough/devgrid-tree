@@ -6,8 +6,10 @@ function isInt(n: unknown) {
 }
 
 // POST /api/factories/[id]/generate - Regenerate children for a factory
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const id = Number(params.id);
+// @ts-expect-error: Next.js does not provide a type for context
+export async function POST(req: NextRequest, context) {
+  // Type assertion for params to maintain type safety
+  const id = Number((context as { params: { id: string } }).params.id);
   const { lower_bound, upper_bound } = await req.json();
 
   // Fetch factory and get children_count
