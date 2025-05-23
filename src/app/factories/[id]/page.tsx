@@ -15,12 +15,14 @@ export default function FactoryDetailPage() {
   const [factory, setFactory] = useState<Factory | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     async function fetchFactory() {
       setLoading(true);
       setError(null);
+      setSuccess(null);
       try {
         const res = await fetch(`/api/factories/${id}`);
         if (!res.ok) {
@@ -43,22 +45,26 @@ export default function FactoryDetailPage() {
   const handleEditSubmit = async (data: Partial<Factory>) => {
     setLoading(true);
     setError(null);
+    setSuccess(null);
     try {
       const res = await fetch(`/api/factories/${id}`, {
-        method: 'PATCH', // Use PATCH for partial updates
+        method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
       if (!res.ok) {
         const err = await res.json();
         setError(err.error || 'Failed to update factory');
+        setSuccess(null);
       } else {
         setEditMode(false);
         const updated = await res.json();
         setFactory(updated);
+        setSuccess('Factory updated successfully!');
       }
     } catch {
       setError('Network error');
+      setSuccess(null);
     } finally {
       setLoading(false);
     }
@@ -74,10 +80,11 @@ export default function FactoryDetailPage() {
         >
           &larr; Back to List
         </Button>
+        {success && <div className="text-green-600 mb-2">{success}</div>}
         {loading ? (
           <div className="flex justify-center py-12">Loading...</div>
         ) : error ? (
-          <div className="text-red-500">{error}</div>
+          <div className="text-red-500 mb-2">{error}</div>
         ) : factory ? (
           editMode ? (
             <FactoryForm
@@ -93,8 +100,13 @@ export default function FactoryDetailPage() {
                 <Button
                   variant="contained"
                   color="primary"
-                  onClick={() => setEditMode(true)}
+                  onClick={() => {
+                    setEditMode(true);
+                    setError(null);
+                    setSuccess(null);
+                  }}
                   className="!bg-blue-600 !text-white hover:!bg-blue-700"
+                  disabled={loading}
                 >
                   Edit
                 </Button>

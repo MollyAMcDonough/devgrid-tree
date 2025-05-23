@@ -32,6 +32,21 @@ export default function FactoryForm({
   const [childrenCount, setChildrenCount] = useState(initialValues.children_count ?? 0);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper to ensure only integers are set
+  const handleIntChange =
+    (setter: (n: number) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const value = e.target.value;
+      if (value === '') {
+        setter(0);
+        return;
+      }
+      const intValue = Math.floor(Number(value));
+      setter(intValue);
+    };
+
+  const isChildrenCountValid =
+    Number.isInteger(childrenCount) && childrenCount >= 0 && childrenCount <= 15;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -44,8 +59,8 @@ export default function FactoryForm({
       setError('Bounds must be integers and lower bound ≤ upper bound.');
       return;
     }
-    if (!Number.isInteger(childrenCount) || childrenCount < 0) {
-      setError('Children count must be a non-negative integer.');
+    if (!isChildrenCountValid) {
+      setError('Children count must be an integer between 0 and 15.');
       return;
     }
 
@@ -76,32 +91,41 @@ export default function FactoryForm({
         label="Lower Bound"
         type="number"
         value={lowerBound}
-        onChange={(e) => setLowerBound(Number(e.target.value))}
+        onChange={handleIntChange(setLowerBound)}
         required
         disabled={loading}
         variant="outlined"
         className="bg-white"
+        inputProps={{ step: 1 }}
       />
       <TextField
         label="Upper Bound"
         type="number"
         value={upperBound}
-        onChange={(e) => setUpperBound(Number(e.target.value))}
+        onChange={handleIntChange(setUpperBound)}
         required
         disabled={loading}
         variant="outlined"
         className="bg-white"
+        inputProps={{ step: 1 }}
       />
       {!hideChildrenCount && (
         <TextField
           label="Children Count"
           type="number"
           value={childrenCount}
-          onChange={(e) => setChildrenCount(Number(e.target.value))}
+          onChange={handleIntChange(setChildrenCount)}
           required
           disabled={loading}
           variant="outlined"
           className="bg-white"
+          inputProps={{ min: 0, max: 15, step: 1 }}
+          error={!isChildrenCountValid}
+          helperText={
+            !isChildrenCountValid
+              ? 'Children count must be an integer between 0 and 15.'
+              : 'Enter an integer between 0 and 15.'
+          }
         />
       )}
       {error && <div className="text-red-600 text-sm">{error}</div>}

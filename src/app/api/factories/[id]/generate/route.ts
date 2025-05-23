@@ -10,7 +10,16 @@ function isInt(n: unknown) {
 export async function POST(req: NextRequest, context) {
   // Type assertion for params to maintain type safety
   const id = Number((context as { params: { id: string } }).params.id);
-  const { lower_bound, upper_bound } = await req.json();
+  let lower_bound, upper_bound;
+  try {
+    // Try to parse JSON, but allow empty body
+    const body = await req.json().catch(() => ({}));
+    lower_bound = body.lower_bound;
+    upper_bound = body.upper_bound;
+  } catch {
+    lower_bound = undefined;
+    upper_bound = undefined;
+  }
 
   // Fetch factory and get children_count
   const factory = await prisma.factory.findUnique({ where: { id } });
