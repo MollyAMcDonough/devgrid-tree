@@ -1,11 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Box, Typography, Button, CircularProgress } from '@mui/material';
+import Link from 'next/link';
+import { Button, CircularProgress } from '@mui/material';
 import FactoryTable from '@/app/components/FactoryTable';
 import type { Factory } from '@/types/factory';
 
-export default function FactoriesPage() {
+export default function HomePage() {
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,14 +22,30 @@ export default function FactoriesPage() {
   }, []);
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-        <Typography variant="h4">Factories</Typography>
-        <Button variant="contained" color="primary" href="/factories/new">
-          Add Factory
-        </Button>
-      </Box>
-      {loading ? <CircularProgress /> : <FactoryTable factories={factories} />}
-    </Box>
+    <div className="min-h-screen bg-black bg-opacity-70 bg-blend-overlay text-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold tracking-tight">Factories</h1>
+          <Button
+            component={Link}
+            href="/factories/new"
+            variant="contained"
+            color="primary"
+            className="!bg-blue-600 !text-white hover:!bg-blue-700 shadow"
+          >
+            Add Factory
+          </Button>
+        </div>
+        <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-6">
+          {loading ? (
+            <div className="flex justify-center py-12">
+              <CircularProgress />
+            </div>
+          ) : (
+            <FactoryTable factories={factories} />
+          )}
+        </div>
+      </div>
+    </div>
   );
 }

@@ -7,7 +7,13 @@ import {
   TableHead,
   TableRow,
   Paper,
+  IconButton,
+  Menu,
+  MenuItem,
 } from '@mui/material';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { Factory } from '@/types/factory';
 
 type FactoryTableProps = {
@@ -15,6 +21,27 @@ type FactoryTableProps = {
 };
 
 export default function FactoryTable({ factories }: FactoryTableProps) {
+  const router = useRouter();
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [menuFactoryId, setMenuFactoryId] = useState<number | null>(null);
+
+  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>, factoryId: number) => {
+    setAnchorEl(event.currentTarget);
+    setMenuFactoryId(factoryId);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+    setMenuFactoryId(null);
+  };
+
+  const handleView = () => {
+    if (menuFactoryId !== null) {
+      router.push(`/factories/${menuFactoryId}`);
+    }
+    handleMenuClose();
+  };
+
   return (
     <TableContainer component={Paper}>
       <Table>
@@ -26,7 +53,6 @@ export default function FactoryTable({ factories }: FactoryTableProps) {
             <TableCell align="right">Children Count</TableCell>
             <TableCell align="right">Created</TableCell>
             <TableCell align="right">Updated</TableCell>
-            {/* Actions column for future menu/buttons */}
             <TableCell align="right">Actions</TableCell>
           </TableRow>
         </TableHead>
@@ -44,7 +70,21 @@ export default function FactoryTable({ factories }: FactoryTableProps) {
                 {format(new Date(factory.updated_at), 'yyyy-MM-dd HH:mm:ss')}
               </TableCell>
               <TableCell align="right">
-                {/* Placeholder for actions (view/edit/delete/regenerate) */}
+                <IconButton
+                  aria-label="more"
+                  onClick={(e) => handleMenuOpen(e, factory.id)}
+                  size="small"
+                >
+                  <MoreVertIcon />
+                </IconButton>
+                <Menu
+                  anchorEl={anchorEl}
+                  open={Boolean(anchorEl) && menuFactoryId === factory.id}
+                  onClose={handleMenuClose}
+                >
+                  <MenuItem onClick={handleView}>View</MenuItem>
+                  {/* Add more actions here as needed */}
+                </Menu>
               </TableCell>
             </TableRow>
           ))}
