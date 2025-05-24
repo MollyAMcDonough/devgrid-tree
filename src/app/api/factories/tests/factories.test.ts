@@ -1,9 +1,5 @@
-import { POST as createFactory, GET as getFactories } from '../src/app/api/factories/route';
-import {
-  GET as getFactory,
-  PATCH as patchFactory,
-  DELETE as deleteFactory,
-} from '../src/app/api/factories/[id]/route';
+import { POST as createFactory, GET as getFactories } from '../route';
+import { GET as getFactory, PATCH as patchFactory, DELETE as deleteFactory } from '../[id]/route';
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -48,7 +44,13 @@ describe('Factories API (App Router)', () => {
     expect(data.length).toBe(0);
   });
 
-  it('should create a factory with valid data', async () => {
+  it('should create a factory with valid data and emit socket event', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+      json: async () => ({}),
+      ok: true,
+      status: 200,
+    } as unknown as Response);
+
     const req = mockRequest({
       name: 'Test Factory',
       lower_bound: 1,
@@ -65,9 +67,26 @@ describe('Factories API (App Router)', () => {
     expect(data.lower_bound).toBe(1);
     expect(data.upper_bound).toBe(10);
     factoryId = data.id;
+
+    // Assert socket event emitted
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost:4000/emit',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining('factories-updated'),
+      })
+    );
+    fetchSpy.mockRestore();
   });
 
-  it('should create a factory with zero children', async () => {
+  it('should create a factory with zero children and emit socket event', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+      json: async () => ({}),
+      ok: true,
+      status: 200,
+    } as unknown as Response);
+
     const req = mockRequest({
       name: 'Test Factory - No Children',
       lower_bound: 1,
@@ -83,6 +102,17 @@ describe('Factories API (App Router)', () => {
     expect(data.children.length).toBe(0);
     expect(data.lower_bound).toBe(1);
     expect(data.upper_bound).toBe(10);
+
+    // Assert socket event emitted
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost:4000/emit',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining('factories-updated'),
+      })
+    );
+    fetchSpy.mockRestore();
   });
 
   it('should reject invalid children_count', async () => {
@@ -133,7 +163,13 @@ describe('Factories API (App Router)', () => {
     expect(data.children).toBeDefined();
   });
 
-  it('should update factory name and bounds', async () => {
+  it('should update factory name and bounds and emit socket event', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+      json: async () => ({}),
+      ok: true,
+      status: 200,
+    } as unknown as Response);
+
     const req = mockRequest({
       name: 'Updated Name',
       lower_bound: 2,
@@ -145,6 +181,17 @@ describe('Factories API (App Router)', () => {
     expect(data.name).toBe('Updated Name');
     expect(data.lower_bound).toBe(2);
     expect(data.upper_bound).toBe(8);
+
+    // Assert socket event emitted
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost:4000/emit',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining('factories-updated'),
+      })
+    );
+    fetchSpy.mockRestore();
   });
 
   it('should get all factories after patch (count unchanged)', async () => {
@@ -154,7 +201,13 @@ describe('Factories API (App Router)', () => {
     expect(data.length).toBe(factoryIds.length);
   });
 
-  it('should delete a factory', async () => {
+  it('should delete a factory and emit socket event', async () => {
+    const fetchSpy = jest.spyOn(global, 'fetch').mockResolvedValue({
+      json: async () => ({}),
+      ok: true,
+      status: 200,
+    } as unknown as Response);
+
     const res = (await deleteFactory(
       {} as unknown as NextRequest,
       mockContext(factoryId)
@@ -164,6 +217,17 @@ describe('Factories API (App Router)', () => {
     expect(data.success).toBe(true);
     // Remove from factoryIds
     factoryIds = factoryIds.filter((id) => id !== factoryId);
+
+    // Assert socket event emitted
+    expect(fetchSpy).toHaveBeenCalledWith(
+      'http://localhost:4000/emit',
+      expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: expect.stringContaining('factories-updated'),
+      })
+    );
+    fetchSpy.mockRestore();
   });
 
   it('should get all factories after deletion', async () => {
