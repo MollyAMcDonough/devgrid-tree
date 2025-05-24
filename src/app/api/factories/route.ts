@@ -54,5 +54,20 @@ export async function POST(req: NextRequest) {
     include: { children: true },
   });
 
+  // --- Real-time update: Notify socket server ---
+  try {
+    await fetch('http://localhost:4000/emit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        event: 'factories-updated',
+        data: factoryWithChildren, // or just {} if you want clients to refetch
+      }),
+    });
+  } catch (err) {
+    // Optionally log error, but don't block response
+    console.error('Socket emit failed:', err);
+  }
+
   return NextResponse.json(factoryWithChildren, { status: 201 });
 }

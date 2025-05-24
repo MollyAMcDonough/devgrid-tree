@@ -7,6 +7,7 @@ import { format } from 'date-fns';
 import FactoryForm from '@/app/components/FactoryForm';
 import FactoryChildrenTable from '@/app/components/FactoryChildrenTable';
 import type { Factory } from '@/types/factory';
+import { io, Socket } from 'socket.io-client';
 
 export default function FactoryDetailPage() {
   const router = useRouter();
@@ -18,28 +19,38 @@ export default function FactoryDetailPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
 
-  useEffect(() => {
-    async function fetchFactory() {
-      setLoading(true);
-      setError(null);
-      setSuccess(null);
-      try {
-        const res = await fetch(`/api/factories/${id}`);
-        if (!res.ok) {
-          setError('Factory not found');
-          setFactory(null);
-        } else {
-          const data = await res.json();
-          setFactory(data);
-        }
-      } catch {
-        setError('Network error');
+  const fetchFactory = async () => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const res = await fetch(`/api/factories/${id}`);
+      if (!res.ok) {
+        setError('Factory not found');
         setFactory(null);
-      } finally {
-        setLoading(false);
+      } else {
+        const data = await res.json();
+        setFactory(data);
       }
+    } catch {
+      setError('Network error');
+      setFactory(null);
+    } finally {
+      setLoading(false);
     }
+  };
+
+  useEffect(() => {
     fetchFactory();
+
+    // Connect to Socket.IO server
+    const socket: Socket = io('http://localhost:4000');
+    socket.on('factories-updated', fetchFactory);
+
+    return () => {
+      socket.disconnect();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleEditSubmit = async (data: Partial<Factory>) => {

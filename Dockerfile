@@ -19,8 +19,9 @@ RUN npx prisma generate
 # Build the Next.js app
 RUN npm run build
 
-# Expose the Next.js default port
+# Expose both Next.js and Socket.IO ports
 EXPOSE 3000
+EXPOSE 4000
 
-# Start the Next.js app in production mode
-CMD ["npm", "start"]
+# Start both Next.js and socket server concurrently
+CMD ["npm", "run", "start:all"]

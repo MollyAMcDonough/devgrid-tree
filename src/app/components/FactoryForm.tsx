@@ -96,7 +96,11 @@ export default function FactoryForm({
         disabled={loading}
         variant="outlined"
         className="bg-white"
-        inputProps={{ step: 1 }}
+        slotProps={{
+          input: {
+            inputProps: { step: 1 },
+          },
+        }}
       />
       <TextField
         label="Upper Bound"
@@ -107,7 +111,11 @@ export default function FactoryForm({
         disabled={loading}
         variant="outlined"
         className="bg-white"
-        inputProps={{ step: 1 }}
+        slotProps={{
+          input: {
+            inputProps: { step: 1 },
+          },
+        }}
       />
       {!hideChildrenCount && (
         <TextField
@@ -119,7 +127,11 @@ export default function FactoryForm({
           disabled={loading}
           variant="outlined"
           className="bg-white"
-          inputProps={{ min: 0, max: 15, step: 1 }}
+          slotProps={{
+            input: {
+              inputProps: { min: 0, max: 15, step: 1 },
+            },
+          }}
           error={!isChildrenCountValid}
           helperText={
             !isChildrenCountValid

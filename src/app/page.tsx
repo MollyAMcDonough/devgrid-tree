@@ -5,20 +5,31 @@ import Link from 'next/link';
 import { Button, CircularProgress } from '@mui/material';
 import FactoryTable from '@/app/components/FactoryTable';
 import type { Factory } from '@/types/factory';
+import { io, Socket } from 'socket.io-client';
 
 export default function HomePage() {
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch factories from API
+  const fetchFactories = async () => {
+    setLoading(true);
+    const res = await fetch('/api/factories');
+    const data = await res.json();
+    setFactories(data);
+    setLoading(false);
+  };
+
   useEffect(() => {
-    async function fetchFactories() {
-      setLoading(true);
-      const res = await fetch('/api/factories');
-      const data = await res.json();
-      setFactories(data);
-      setLoading(false);
-    }
     fetchFactories();
+
+    // Connect to Socket.IO server
+    const socket: Socket = io('http://localhost:4000');
+    socket.on('factories-updated', fetchFactories);
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   return (

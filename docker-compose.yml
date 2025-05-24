@@ -2,18 +2,18 @@ services:
   app:
     build: .
     ports:
-      - '3000:3000'
-      - '5555:5555'
+      - '3000:3000' # Next.js
+      - '4000:4000' # Socket.IO
+      - '5555:5555' # Prisma Studio (optional)
     volumes:
       - .:/app
       - /app/node_modules
     environment:
       - NODE_ENV=development
-      # Database connection string for local dev; you can also use a .env file
       - DATABASE_URL=postgresql://postgres:password@db:5432/mydb
     depends_on:
       - db
-    command: npm run dev
+    command: npm run dev:all
 
   db:
     image: postgres:16

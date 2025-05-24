@@ -5,6 +5,19 @@ function isInt(n: unknown) {
   return typeof n === 'number' && Number.isInteger(n);
 }
 
+// Helper to emit socket events
+async function emitSocketEvent(event: string, data: unknown) {
+  try {
+    await fetch('http://localhost:4000/emit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, data }),
+    });
+  } catch (err) {
+    console.error('Socket emit failed:', err);
+  }
+}
+
 // POST /api/factories/[id]/generate - Regenerate children for a factory
 // @ts-expect-error: Next.js does not provide a type for context
 export async function POST(req: NextRequest, context) {
@@ -45,6 +58,15 @@ export async function POST(req: NextRequest, context) {
     }));
     await prisma.child.createMany({ data: childrenData });
   }
+
+  // Fetch updated factory with children
+  const updatedFactory = await prisma.factory.findUnique({
+    where: { id },
+    include: { children: true },
+  });
+
+  // Emit real-time update
+  await emitSocketEvent('factories-updated', updatedFactory);
 
   return NextResponse.json({ success: true });
 }
