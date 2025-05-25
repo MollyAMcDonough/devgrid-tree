@@ -14,8 +14,7 @@
     "lint": "next lint",
     "format": "prettier --write .",
     "seed": "prisma db seed",
-    "socket": "nodemon socket-server.js",
-    "postinstall": "prisma generate && prisma migrate deploy"
+    "socket": "nodemon socket-server.js"
   },
   "prisma": {
     "seed": "tsx ./prisma/seed.ts"
