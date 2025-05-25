@@ -146,8 +146,8 @@ docker run -p 3000:3000 -p 4000:4000 --env-file .env.local devgrid-tree
    ```
 3. **Set environment variables** in your production environment (see `.env.example`).
 4. **Recommended hosting:**
-   - [Vercel](https://vercel.com/) (Next.js native)
-   - [Render](https://render.com/), [Fly.io](https://fly.io/), [Heroku](https://heroku.com/)
+   - [Vercel](https://vercel.com/) (Next.js native) but doesn't support sockets
+   - [Render](https://render.com/) for single host deployment
 
 ---
 
