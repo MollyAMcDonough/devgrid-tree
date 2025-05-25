@@ -31,6 +31,9 @@ export default function HomePage() {
   useEffect(() => {
     fetchFactories();
 
+    // Log the socket server URL to verify it's injected
+    console.log('SOCKET URL:', process.env.NEXT_PUBLIC_SOCKET_SERVER_URL);
+
     // Connect to Socket.IO server for real-time updates
     const socket: Socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL!);
     socket.on('factories-updated', fetchFactories);
