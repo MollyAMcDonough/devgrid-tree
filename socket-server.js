@@ -8,9 +8,13 @@ app.use(express.json());
 // Create an HTTP server and attach both Express and Socket.IO to it
 const server = http.createServer(app);
 
+// Use CORS_ORIGIN env var in production, fallback to * for local/dev
+const allowedOrigin = process.env.CORS_ORIGIN || '*';
+
 const io = new Server(server, {
   cors: {
-    origin: '*', // For dev only! Restrict in production.
+    origin: allowedOrigin,
+    methods: ['GET', 'POST'],
   },
 });
 
