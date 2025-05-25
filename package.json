@@ -8,7 +8,7 @@
     "dev": "next dev --turbopack",
     "dev:all": "concurrently \"next dev --turbo\" \"nodemon socket-server.js\"",
     "build": "next build",
-    "start": "next start",
+    "start": "prisma migrate deploy && next start",
     "start:all": "concurrently \"npm run start\" \"node socket-server.js\"",
     "test": "dotenv -e .env.test -- jest",
     "lint": "next lint",
