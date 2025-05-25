@@ -43,8 +43,11 @@ export default function FactoryDetailPage() {
   useEffect(() => {
     fetchFactory();
 
-    // Connect to Socket.IO server
-    const socket: Socket = io('http://localhost:4000');
+    // Hardcoded socket server URL for production
+    const SOCKET_SERVER_URL = 'https://devgrid-tree-socket-server.onrender.com';
+    console.log('SOCKET URL (hardcoded):', SOCKET_SERVER_URL);
+
+    const socket: Socket = io(SOCKET_SERVER_URL);
     socket.on('factories-updated', fetchFactory);
 
     return () => {
