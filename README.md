@@ -1,6 +1,6 @@
 # devgrid-tree
 
-A full-stack, real-time tree management app built with Next.js, Prisma, and MUI for the DevGrid programming challenge.
+A full-stack, real-time tree management app built with Next.js, Prisma, TypeScript, Tailwind CSS, MUI, and Socket.IO for the DevGrid programming challenge.
 
 ---
 
@@ -54,29 +54,66 @@ Visit [http://localhost:3000](http://localhost:3000).
 
 ---
 
-## 🐳 Docker
+## 🐳 Docker & Docker Compose
 
-To build and run with Docker:
+You can run the app with Docker or Docker Compose for local development and testing.
+
+### **Single-Container Docker (uses SQLite)**
+
+Build and run the app in a single container (with SQLite as the database):
 
 ```bash
 docker build -t devgrid-tree .
 docker run -p 3000:3000 -p 4000:4000 --env-file .env.local devgrid-tree
 ```
 
-- The default Dockerfile uses SQLite for local development.
-- For production, set your `DATABASE_URL` to a Postgres or other production database.
+- This runs both the Next.js app (port 3000) and the socket server (port 4000) in one container.
+- By default, this setup uses SQLite for local development.
 
 ---
+
+### **Docker Compose (recommended for local development with Postgres)**
+
+Run the app and a Postgres database together:
+
+```bash
+docker compose up --build
+```
+
+- This will:
+  - Build and start the app (Next.js + socket server) on ports 3000 and 4000.
+  - Start a Postgres database on port 5432.
+  - Set up the database connection automatically via `DATABASE_URL`.
+  - Persist database data in a Docker volume (`db_data`).
+
+To stop and remove containers, networks, and volumes:
+
+```bash
+docker compose down
+```
+
+- The Compose setup is ideal for local development and testing with a real Postgres database.
+- For production, set your `DATABASE_URL` to a managed Postgres or other production database.
+
+---
+
+**Note:**
+
+- The default Dockerfile uses SQLite for local development if you run the app container by itself.
+- The `docker-compose.yml` file sets up a Postgres database container and connects your app to it automatically.
 
 ## 🗂️ Project Structure
 
 ```
 /src
-  /app            # Next.js App Router pages and API routes
-    /components   # Reusable React components (tables, forms, dialogs, etc.)
-    /api          # API endpoints (RESTful, with Prisma)
-  /lib            # Prisma client and utilities
-/types            # Shared TypeScript types
+  /app              # Next.js App Router pages and API routes
+    /components     # Reusable React components (tables, forms, dialogs, etc.)
+      /tests        # Component level tests
+    /api/factories  # API endpoints (RESTful, with Prisma)
+      /tests        # Backend tests on endpoints and sockets
+    /tests          # Page level tests
+  /lib              # Prisma client and utilities
+/types              # Shared TypeScript types
 ```
 
 ---
@@ -89,7 +126,7 @@ docker run -p 3000:3000 -p 4000:4000 --env-file .env.local devgrid-tree
 - Live updates across all browsers via socket events (no polling)
 - Accessible, responsive UI (MUI + Tailwind)
 - Input validation and security best practices
-- Comprehensive tests (Jest, React Testing Library)
+- Proof of concept tests (Jest, React Testing Library)
 - Docker support for easy deployment
 
 ---
@@ -115,7 +152,9 @@ docker run -p 3000:3000 -p 4000:4000 --env-file .env.local devgrid-tree
   npm test
   ```
 - All external network calls are mocked for reliability.
-- Coverage includes API endpoints and UI flows.
+- Proof of concept tests are included to demonstrate the testing setup and core functionality.
+- Coverage includes API endpoints and some main UI flows. Would expand API, UI, and integration testing for an ongoing project.
+- Tests are run against a separate test database (see .env.example for setup) and are configured for local development. With environment variables pointing to production, front end tests will fail.
 
 ---
 
@@ -144,10 +183,14 @@ docker run -p 3000:3000 -p 4000:4000 --env-file .env.local devgrid-tree
    ```bash
    npm start
    ```
-3. **Set environment variables** in your production environment (see `.env.example`).
-4. **Recommended hosting:**
-   - [Vercel](https://vercel.com/) (Next.js native) but doesn't support sockets
-   - [Render](https://render.com/) for single host deployment
+3. **Set environment variables**
+   - in your production environment (see `.env.example`).
+   - The socket server URL is currently hardcoded in the frontend for deployment reliability on Render. In a larger scale project, a workaround to get the Render environment variable to propagate at the right step of the build should be implemented.
+
+**If you deploy to a different host or domain, update the hardcoded socket server URL in `src/app/page.tsx` and `src/app/factories/[id]/page.tsx` to match your new socket server address.**
+
+4. **Hosting:**
+   - [Render](https://render.com/) for single host deployment. Vercel is recommended for static Next.js hosting, but doesn't support custom socket servers (websockets).
 
 ---
 
@@ -172,20 +215,4 @@ MIT
 
 ## 📝 Example `.env.example`
 
-```env
-# .env.example
-
-# Database connection string (SQLite for dev, Postgres for prod)
-DATABASE_URL="file:./dev.db"
-# For Postgres, use:
-# DATABASE_URL="postgresql://USER:PASSWORD@HOST:PORT/DATABASE"
-
-# (Optional) Node environment
-NODE_ENV=development
-
-# (Optional) Socket server port (if configurable)
-SOCKET_PORT=4000
-
-# (Optional) Next.js port (if running outside Docker)
-PORT=3000
-```
+- See the .env.example file in the repo for required environment variables.

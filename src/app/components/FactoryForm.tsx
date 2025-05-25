@@ -114,10 +114,10 @@ export default function FactoryForm({
         className="bg-white"
         slotProps={{
           input: {
-            inputProps: { min: -1000000, max: 1000000, step: 1 },
+            inputProps: { min: 0, max: 1000000, step: 1 },
           },
         }}
-        helperText={`Enter an integer between -1,000,000 and 1,000,000.`}
+        helperText={`Enter an integer between 0 and 1,000,000.`}
       />
       <TextField
         label="Upper Bound"
@@ -130,10 +130,10 @@ export default function FactoryForm({
         className="bg-white"
         slotProps={{
           input: {
-            inputProps: { min: -1000000, max: 1000000, step: 1 },
+            inputProps: { min: 0, max: 1000000, step: 1 },
           },
         }}
-        helperText={`Enter an integer between -1,000,000 and 1,000,000.`}
+        helperText={`Enter an integer between 0 and 1,000,000.`}
       />
       {!hideChildrenCount && (
         <TextField

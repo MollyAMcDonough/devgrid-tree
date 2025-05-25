@@ -31,7 +31,7 @@ export default function HomePage() {
   useEffect(() => {
     fetchFactories();
 
-    // Hardcoded socket server URL for production
+    // Hardcoded socket server URL for production, update to NEXT_PUBLIC_SOCKET_SERVER_URL for local dev and set in .env.local
     const SOCKET_SERVER_URL = 'https://devgrid-tree-socket-server.onrender.com';
     console.log('SOCKET URL (hardcoded):', SOCKET_SERVER_URL);
 
