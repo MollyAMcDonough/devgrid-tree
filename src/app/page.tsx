@@ -32,7 +32,7 @@ export default function HomePage() {
     fetchFactories();
 
     // Connect to Socket.IO server for real-time updates
-    const socket: Socket = io('http://localhost:4000');
+    const socket: Socket = io(process.env.NEXT_PUBLIC_SOCKET_SERVER_URL!);
     socket.on('factories-updated', fetchFactories);
 
     return () => {

@@ -10,8 +10,9 @@ function isInt(n: unknown) {
 
 // Helper to emit socket events
 async function emitSocketEvent(event: string, data: unknown) {
+  const socketServerUrl = process.env.SOCKET_SERVER_URL || 'http://localhost:4000';
   try {
-    await fetch('http://localhost:4000/emit', {
+    await fetch(`${socketServerUrl}/emit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ event, data }),

@@ -12,6 +12,23 @@ function isInt(n: unknown) {
 }
 
 /**
+ * Helper to emit socket events to the socket server.
+ */
+async function emitSocketEvent(event: string, data: unknown) {
+  const socketServerUrl = process.env.SOCKET_SERVER_URL || 'http://localhost:4000';
+  try {
+    await fetch(`${socketServerUrl}/emit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ event, data }),
+    });
+  } catch (err) {
+    // Log socket errors but don't block response
+    console.error('Socket emit failed:', err);
+  }
+}
+
+/**
  * GET /api/factories
  * Returns all factories with their children.
  */
@@ -81,19 +98,7 @@ export async function POST(req: NextRequest) {
     });
 
     // --- Real-time update: Notify socket server ---
-    try {
-      await fetch('http://localhost:4000/emit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          event: 'factories-updated',
-          data: factoryWithChildren,
-        }),
-      });
-    } catch (err) {
-      // Log socket errors but don't block response
-      console.error('Socket emit failed:', err);
-    }
+    await emitSocketEvent('factories-updated', factoryWithChildren);
 
     return NextResponse.json(factoryWithChildren, { status: 201 });
   } catch (err) {
