@@ -50,7 +50,11 @@ export default function FactoryNewPage() {
         </Button>
         <h1 className="text-2xl font-bold mb-4 text-white">Add New Factory</h1>
         <FactoryForm onSubmit={handleSubmit} loading={loading} />
-        {error && <div className="text-red-500 mt-2">{error}</div>}
+        {error && (
+          <div className="text-red-500 mt-2" role="alert">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

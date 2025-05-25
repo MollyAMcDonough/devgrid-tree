@@ -10,20 +10,28 @@ import { io, Socket } from 'socket.io-client';
 export default function HomePage() {
   const [factories, setFactories] = useState<Factory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Fetch factories from API
+  // Fetch factories from API with error handling
   const fetchFactories = async () => {
     setLoading(true);
-    const res = await fetch('/api/factories');
-    const data = await res.json();
-    setFactories(data);
-    setLoading(false);
+    setError(null);
+    try {
+      const res = await fetch('/api/factories');
+      if (!res.ok) throw new Error('Failed to fetch factories');
+      const data = await res.json();
+      setFactories(data);
+    } catch {
+      setError('Failed to load factories. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchFactories();
 
-    // Connect to Socket.IO server
+    // Connect to Socket.IO server for real-time updates
     const socket: Socket = io('http://localhost:4000');
     socket.on('factories-updated', fetchFactories);
 
@@ -33,24 +41,28 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black bg-opacity-70 bg-blend-overlay text-white p-8">
+    <div className="min-h-screen bg-black bg-opacity-70 bg-blend-overlay text-white p-4 sm:p-8">
       <div className="max-w-4xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Factories</h1>
-          <Button
-            component={Link}
-            href="/factories/new"
-            variant="contained"
-            color="primary"
-            className="!bg-blue-600 !text-white hover:!bg-blue-700 shadow"
-          >
-            Add Factory
-          </Button>
+          <Link href="/factories/new">
+            <Button
+              variant="contained"
+              color="primary"
+              className="!bg-blue-600 !text-white hover:!bg-blue-700 shadow"
+            >
+              Add Factory
+            </Button>
+          </Link>
         </div>
         <div className="bg-white bg-opacity-90 rounded-lg shadow-lg p-6">
           {loading ? (
             <div className="flex justify-center py-12">
               <CircularProgress />
+            </div>
+          ) : error ? (
+            <div className="text-red-600 text-center py-8" role="alert">
+              {error}
             </div>
           ) : (
             <FactoryTable factories={factories} />

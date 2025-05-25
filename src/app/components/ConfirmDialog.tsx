@@ -10,6 +10,10 @@ type ConfirmDialogProps = {
   cancelText?: string;
 };
 
+/**
+ * ConfirmDialog renders a modal dialog for confirming destructive or important actions.
+ * Uses MUI's accessible Dialog component.
+ */
 export default function ConfirmDialog({
   open,
   title = 'Confirm',

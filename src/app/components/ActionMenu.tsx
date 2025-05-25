@@ -9,6 +9,10 @@ type ActionMenuProps = {
   disabled?: boolean;
 };
 
+/**
+ * ActionMenu renders a dropdown menu for actions on a factory row.
+ * Uses MUI's accessible Menu and IconButton components.
+ */
 export default function ActionMenu({ onView, onRegenerate, onDelete, disabled }: ActionMenuProps) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 

@@ -5,6 +5,10 @@ type FactoryChildrenTableProps = {
   childrenList: NonNullable<Factory['children']>;
 };
 
+/**
+ * Renders a list of children for a factory.
+ * Shows an empty state if there are no children.
+ */
 export default function FactoryChildrenTable({ childrenList }: FactoryChildrenTableProps) {
   return (
     <div>
@@ -12,7 +16,7 @@ export default function FactoryChildrenTable({ childrenList }: FactoryChildrenTa
       {childrenList.length === 0 ? (
         <div className="text-gray-500">No children.</div>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <ul className="divide-y divide-gray-200" aria-label="Children list">
           {childrenList.map((child) => (
             <li key={child.id} className="py-2 flex justify-between">
               <span>Value: {child.value}</span>

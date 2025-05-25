@@ -4,14 +4,26 @@ import { useState } from 'react';
 import { Button, TextField } from '@mui/material';
 
 type FactoryFormProps = {
+  /**
+   * Called with form data when the form is valid and submitted.
+   */
   onSubmit?: (data: {
     name: string;
     lower_bound: number;
     upper_bound: number;
     children_count: number;
   }) => void;
+  /**
+   * If true, hides the children count field (for edit mode).
+   */
   hideChildrenCount?: boolean;
+  /**
+   * If true, disables form fields and shows loading state.
+   */
   loading?: boolean;
+  /**
+   * Initial values for the form fields (for edit mode).
+   */
   initialValues?: {
     name?: string;
     lower_bound?: number;
@@ -20,6 +32,10 @@ type FactoryFormProps = {
   };
 };
 
+/**
+ * FactoryForm renders a form for creating or editing a factory.
+ * Handles validation, loading, and error states.
+ */
 export default function FactoryForm({
   onSubmit,
   loading = false,
@@ -98,9 +114,10 @@ export default function FactoryForm({
         className="bg-white"
         slotProps={{
           input: {
-            inputProps: { step: 1 },
+            inputProps: { min: -1000000, max: 1000000, step: 1 },
           },
         }}
+        helperText={`Enter an integer between -1,000,000 and 1,000,000.`}
       />
       <TextField
         label="Upper Bound"
@@ -113,9 +130,10 @@ export default function FactoryForm({
         className="bg-white"
         slotProps={{
           input: {
-            inputProps: { step: 1 },
+            inputProps: { min: -1000000, max: 1000000, step: 1 },
           },
         }}
+        helperText={`Enter an integer between -1,000,000 and 1,000,000.`}
       />
       {!hideChildrenCount && (
         <TextField
@@ -140,7 +158,11 @@ export default function FactoryForm({
           }
         />
       )}
-      {error && <div className="text-red-600 text-sm">{error}</div>}
+      {error && (
+        <div className="text-red-600 text-sm" role="alert">
+          {error}
+        </div>
+      )}
       <Button
         type="submit"
         variant="contained"
