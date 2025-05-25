@@ -33,6 +33,7 @@ app.post('/emit', (req, res) => {
   res.sendStatus(200);
 });
 
-server.listen(4000, () => {
-  console.log('Socket.IO and emit endpoint running on port 4000');
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => {
+  console.log(`Socket.IO and emit endpoint running on port ${PORT}`);
 });
